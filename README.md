@@ -235,3 +235,61 @@ node3 … and so one. You can see in figure2 the ids (green numbers) on my pipes
 
 ![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/fig2.png)
 
+The third step was to install the pgRouting extension.
+The fourth step was to create a function to determine the path between two nodes.
+
+CREATE OR REPLACE FUNCTION qwat_od.fn_pipe_path(IN var_nod_a integer,
+IN var_nod_b integer)
+
+RETURNS TABLE(seq integer, path_seq integer, nod bigint, edge bigint, cost
+double precision, agg_cost double precision, geometry geometry, path text) AS
+
+$BODY$
+
+SELECT path.*,geom.geometry,geom.json FROM pgr_dijkstra('
+
+select id,
+fk_node_a as source,
+fk_node_b as target,
+
+CASE WHEN qwat_od.ft_element_valve_status(id) THEN -1 ELSE
+st_length(vw_pipe.geometry) END as cost,
+
+CASE WHEN qwat_od.ft_element_valve_status(id) THEN -1 ELSE
+st_length(vw_pipe.geometry) END as reverse_cost
+
+from qwat_od.vw_pipe
+
+union
+
+select sp.fk_pipe,
+sp.fk_node_a,
+sp.fk_node_b,
+
+CASE WHEN sp.geometry is not null THEN CASE WHEN
+qwat_od.ft_element_valve_status(sp.fk_pipe) THEN -1 ELSE
+st_length(sp.geometry) END ELSE 0.1 END,
+
+CASE WHEN sp.geometry is not null THEN CASE WHEN
+qwat_od.ft_element_valve_status(sp.fk_pipe) THEN -1 ELSE
+st_length(sp.geometry) END ELSE 0.1 END
+
+from qwat_od.pipe_reference as sp',var_nod_a,var_nod_b) as path
+
+LEFT JOIN (
+
+SELECT id,geometry,ST_AsGeoJSON(geometry) as json
+FROM qwat_od.pipe
+
+) as geom ON geom.id=path.edge
+
+$BODY$
+
+LANGUAGE sql VOLATILE
+
+COST 100
+
+ROWS 1000;
+
+The fifth step was to run the function.
+In Figure 3 we have the result of running the function on my network between two points.
