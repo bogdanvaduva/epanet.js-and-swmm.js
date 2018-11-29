@@ -129,66 +129,107 @@ layout:
 
 
 CREATE OR REPLACE FUNCTION qwat_od.fn_pipe_(var_pipe_id integer)
+
 RETURNS integer AS
+
 $BODY$DECLARE r record;
+
 DECLARE fk integer;
+
 DECLARE g1 geometry;
+
 DECLARE ml record;
+
 BEGIN
+
 DELETE FROM qwat_od.pipe_reference WHERE fk_pipe=var_pipe_id;
+
 FOR r IN (
-SELECT *, CASE WHEN ST_LineLocatePoint(tblpipe.pg,
-tblpipe.fk_ag)<ST_LineLocatePoint(tblpipe.pg, tblpipe_nodes.ng) THEN
-ST_Length(ST_LineSubstring(tblpipe.pg, ST_LineLocatePoint(tblpipe.pg,
-tblpipe.fk_ag), ST_LineLocatePoint(tblpipe.pg, tblpipe_nodes.ng))) ELSE 99999
+
+SELECT *, 
+CASE WHEN ST_LineLocatePoint(tblpipe.pg,tblpipe.fk_ag)<ST_LineLocatePoint(tblpipe.pg, tblpipe_nodes.ng) THEN
+ST_Length(ST_LineSubstring(tblpipe.pg, ST_LineLocatePoint(tblpipe.pg,tblpipe.fk_ag), ST_LineLocatePoint(tblpipe.pg, tblpipe_nodes.ng))) ELSE 99999
 END as distance
+
 FROM (
+
 SELECT vw_pipe.id as pid,n.id as fk_a,vw_pipe.fk_node_b as
+
 fk_b,n.geometry as fk_ag,vw_pipe.geometry as pg
-FROM qwat_od.vw_pipe join qwat_od.node as n on
-n.id=vw_pipe.fk_node_a
+
+FROM qwat_od.vw_pipe join qwat_od.node as n on n.id=vw_pipe.fk_node_a
+
 WHERE vw_pipe.id=var_pipe_id
+
 ) tblpipe join (
+
 SELECT vw_pipe.id as p_id,n.id as n,n.geometry as ng
-FROM qwat_od.vw_pipe join qwat_od.node as n on n.id not in
-(vw_pipe.fk_node_a,vw_pipe.fk_node_b)
+
+FROM qwat_od.vw_pipe join qwat_od.node as n on n.id not in (vw_pipe.fk_node_a,vw_pipe.fk_node_b)
+
 WHERE vw_pipe.id=var_pipe_id and
-ST_Distance(n.geometry,vw_pipe.geometry)>=0 and
-ST_Distance(n.geometry,vw_pipe.geometry)<0.003 and n.id in (select
-pipe.fk_node_a from qwat_od.pipe union select pipe.fk_node_b from qwat_od.pipe)
+
+ST_Distance(n.geometry,vw_pipe.geometry)>=0 and ST_Distance(n.geometry,vw_pipe.geometry)<0.003 
+and n.id in (select pipe.fk_node_a from qwat_od.pipe union select pipe.fk_node_b from qwat_od.pipe)
+
 ) tblpipe_nodes on tblpipe.pid=tblpipe_nodes.p_id
+
 ORDER BY distance
+
 )
+
 LOOP
+
 IF (fk IS NULL) THEN
+
 fk = r.fk_a;
+
 END IF;
+
 IF (g1 IS NULL) THEN
+
 g1 = r.pg;
+
 END IF;
+
 -- split line by nodes ST_Distance(g1,r.ng)*1.5
 SELECT
 ST_NumGeometries(ST_CollectionExtract(ST_Split(ST_Snap(g1,r.ng,0.003),r.ng),2
 )) as nr,
+
 ST_GeometryN(ST_CollectionExtract(ST_Split(ST_Snap(g1,r.ng,0.003),r.ng),2),1)
 as l1,
+
 ST_GeometryN(ST_CollectionExtract(ST_Split(ST_Snap(g1,r.ng,0.003),r.ng),2),2)
 as l2 INTO ml;
+
 -- insert line into pipe_reference
 INSERT INTO
 qwat_od.pipe_reference(fk_pipe,fk_node_a,fk_node_b,geometry)
 SELECT r.pid,fk,r.n,ml.l1;
+
 fk = r.n;
+
 g1 = ml.l2;
+
 END LOOP;
+
 IF (r IS NOT NULL) THEN
+
 INSERT INTO
 qwat_od.pipe_reference(fk_pipe,fk_node_a,fk_node_b,geometry)
 SELECT r.pid,fk,r.fk_b,g1;
+
 END IF;
+
 RETURN 0;
+
 END;$BODY$
+
 LANGUAGE plpgsql VOLATILE
+
 COST 100;
+
 After running the previous function on my network I got edges for node1-node2, node2-
 node3 … and so one. You can see in figure2 the ids (green numbers) on my pipes.
+
