@@ -293,3 +293,27 @@ ROWS 1000;
 
 The fifth step was to run the function.
 In Figure 3 we have the result of running the function on my network between two points.
+
+The sixth step was to add a function to determine valve status:
+
+CREATE OR REPLACE FUNCTION
+
+qwat_od.fn_element_valve_status(var_pipe_id integer)
+RETURNS boolean AS
+
+$BODY$
+
+SELECT bool_or(closed) as closed
+
+FROM qwat_od.vw_element_valve
+
+WHERE fk_pipe=var_pipe_id
+
+GROUP by fk_pipe
+
+$BODY$
+
+LANGUAGE sql VOLATILE
+
+COST 100;
+
