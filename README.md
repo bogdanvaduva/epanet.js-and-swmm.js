@@ -94,23 +94,40 @@ To make QWAT pgRouting friendly we added a new table called pipe_reference with 
 following structure:
 
 CREATE TABLE qwat_od.pipe_reference
+
 (
+
 id serial NOT NULL,
+
 fk_pipe integer,
+
 fk_node_a integer,
+
 fk_node_b integer,
+
 geometry geometry,
+
 CONSTRAINT pipe_reference_pkey PRIMARY KEY (id),
+
 CONSTRAINT pipe_reference_fk_pipe_fkey FOREIGN KEY (fk_pipe)
+
 REFERENCES qwat_od.pipe (id) MATCH SIMPLE
+
 ON UPDATE NO ACTION ON DELETE CASCADE
+
 )
+
 WITH (
+
 OIDS=FALSE
+
 );
+
 
 The second step was to create a function which splits a pipe according to my network
 layout:
+
+
 CREATE OR REPLACE FUNCTION qwat_od.fn_pipe_(var_pipe_id integer)
 RETURNS integer AS
 $BODY$DECLARE r record;
