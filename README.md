@@ -1,10 +1,9 @@
 epanet.js and swmm.js
-=========
+=====================
 
-JavaScript version of EPANET and SWMM.
-No installation required. Data is not sent to the server.
+JavaScript version of EPANET and SWMM. No installation will be required. Data will not sent to the server.
 
-This is an updated version of the one found at [sdteffen/epanet.js](https://github.com/sdteffen/epanet.js)
+This is an updated version of the one found at [sdteffen/epanet.js](https://github.com/sdteffen/epanet.js) ( Great job done there! )
 
 To view the original one have a look at :
 
