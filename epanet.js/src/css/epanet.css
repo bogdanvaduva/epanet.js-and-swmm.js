@@ -1,0 +1,181 @@
+
+svg {
+    background-color: #444;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+svg:not(.active):not(.ctrl) {
+    cursor: crosshair;
+}
+
+path.link {
+    fill: none;
+    stroke: #000;
+    stroke-width: 4px;
+    cursor: default;
+}
+
+svg:not(.active):not(.ctrl) path.link {
+    cursor: pointer;
+}
+
+path.link.selected {
+    stroke-dasharray: 10,2;
+}
+
+path.link.dragline {
+    pointer-events: none;
+}
+
+path.link.hidden {
+    stroke-width: 0;
+}
+
+circle.node {
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+
+text {
+    font: 12px sans-serif;
+    pointer-events: none;
+}
+
+text.id {
+    text-anchor: middle;
+    font-weight: bold;
+}
+
+
+body {
+    padding-bottom: 40px;
+    color: #5a5a5a;    
+}
+
+h2 {
+    height: 36px;
+    margin-top: 0px;
+}
+
+.navbar {
+    margin-bottom: 0px;
+}
+
+.row {
+    width: 1300px;
+}
+
+.popover-content {
+    font-size: 14px;
+}
+
+.well-sm {
+    height: 54px;
+    margin-bottom: 10px;
+}
+
+.well-analysis {
+    padding-top: 15px;
+}
+
+.legendcolor {
+    display: inline-block;
+    width: 20px;
+    height: 15px;
+}
+
+.sankeynode rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.sankeynode text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.sankeylink {
+  fill: none;
+  stroke: white;
+  stroke-opacity: .2;
+}
+
+.sankeylink:hover {
+  stroke-opacity: .5;
+}
+
+#status {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+#jumbotron {
+    height: 500px;
+    padding: 0px;
+    margin-bottom: 0px;
+}
+
+#inputPre, #output {
+    text-align:left;
+    overflow-y: auto;
+    white-space: nowrap;
+}
+
+#inputTextarea {
+    width: 97%;
+    height: 20em;
+}
+
+#inputButtons {
+    width: 620px;    
+}
+
+#file {
+    width: 488px;
+    float:left; 
+    font-size: 18px; 
+    padding-top: 4px; 
+    line-height:20px;
+    display: none;
+}
+
+#inputModal .modal-content {
+    width: 979px;
+}
+
+#saveButton {
+    display: none;
+}
+
+#legend {
+    margin-top: -496px;
+    float: right;
+    width: 250px;
+    display: none;
+}
+
+#ad {
+    text-align: center;
+    min-height: 5px;
+    margin-top: 1px;
+}
+
+/* RESPONSIVE CSS */
+
+@media (max-width: 979px) {
+
+}
+
+@media (max-width: 767px) {
+
+    #inputModal .modal-content {
+        width: 100%;
+    }
+
+}
