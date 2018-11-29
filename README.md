@@ -319,3 +319,4 @@ LANGUAGE sql VOLATILE
 
 COST 100;
 
+Regarding QGEP the problem is a little bit easier because we already knows node a and node b. 
