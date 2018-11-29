@@ -72,6 +72,7 @@ DATA MODEL
 ==========
 
 I am using QWAT and QGEP data model ( Great job! )
+
 In order to be able to export data from QWAT to EPANET we need to know if the water is flowing from one point (node) to another. I am using pgRouting and a few function wrote by myself.
 
 We know that pgRouting extends the PostGIS / PostgreSQL geospatial database to provide
@@ -84,3 +85,4 @@ In my environment I am spliting the pipes only when two or more pipes meet. The 
 function "branchement privé". In the following picture there is an example of how my
 network is laid out:
 
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/fig1.png)
