@@ -53,7 +53,10 @@ SAMPLE FOR EPANET.js
 TODO
 ====
 to modify the generated js.js to deal with null nodes.
+
 to change sample.html 
+
+to add swmm.js
 
 Libraries
 =========
