@@ -84,7 +84,3 @@ In my environment I am spliting the pipes only when two or more pipes meet. The 
 function "branchement privé". In the following picture there is an example of how my
 network is laid out:
 
-
-
-
-
