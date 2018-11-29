@@ -73,7 +73,7 @@ DATA MODEL
 
 I am using QWAT and QGEP data model ( Great job! )
 
-In order to be able to export data from QWAT to EPANET we need to know if the water is flowing from one point (node) to another. I am using pgRouting and a few function wrote by myself.
+In order to be able to export data from QWAT to EPANET we need to know if the water is flowing from one point (node) to another. I am using pgRouting and a few functions wrote by myself.
 
 We know that pgRouting extends the PostGIS / PostgreSQL geospatial database to provide
 geospatial routing functionality. On the other hand we know that QWAT models the water network.
