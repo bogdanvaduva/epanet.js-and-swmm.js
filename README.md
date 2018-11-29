@@ -67,3 +67,24 @@ epanet.js uses several libraries:
 * [jQuery](http://jquery.com)
 * [Bootstrap](http://getbootstrap.com)
 * [FileSaver.js](https://github.com/eligrey/FileSaver.js/)
+
+DATA MODEL
+==========
+
+I am using QWAT and QGEP data model ( Great job! )
+In order to be able to export data from QWAT to EPANET we need to know if the water is flowing from one point (node) to another. I am using pgRouting and a few function wrote by myself.
+
+We know that pgRouting extends the PostGIS / PostgreSQL geospatial database to provide
+geospatial routing functionality. On the other hand we know that QWAT models the water network.
+In this model we have pipes and we have nodes. In order to find the water flow in QWAT we need
+to have edges (pipes), start node and end node. The good thing about model is that it already defines
+node A and node B for a pipe.
+
+In my environment I am spliting the pipes only when two or more pipes meet. The 'meeting pipes' will have not to have the
+function "branchement privé". In the following picture there is an example of how my
+network is laid out:
+
+
+
+
+
