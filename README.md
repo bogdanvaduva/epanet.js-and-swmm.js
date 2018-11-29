@@ -233,3 +233,5 @@ COST 100;
 After running the previous function on my network I got edges for node1-node2, node2-
 node3 … and so one. You can see in figure2 the ids (green numbers) on my pipes.
 
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/fig2.png)
+
