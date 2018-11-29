@@ -1,7 +1,7 @@
-epanet.js
+epanet.js and swmm.js
 =========
 
-JavaScript version of EPANET.
+JavaScript version of EPANET and SWMM.
 No installation required. Data is not sent to the server.
 
 This is an updated version of the one found at [sdteffen/epanet.js](https://github.com/sdteffen/epanet.js)
@@ -17,8 +17,8 @@ Requirements
 
 [Emscripten](http://emscripten.org)'s emcc c-to-js compiler.
 
-Compilation
-===========
+Compilation for epanet.js
+=========================
 
 A shell like Bash need to be used to build epanet.js. 
 1. Download epanet source files from https://www.epa.gov/sites/production/files/2018-10/en2source.zip
@@ -45,8 +45,8 @@ emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.
 
 5. Use it and enjoy!
 
-SAMPLE
-======
+SAMPLE FOR EPANET.js
+====================
 
 ![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/epanet.gif)
 
