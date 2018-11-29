@@ -48,7 +48,7 @@ emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.
 SAMPLE
 ======
 
-![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js/blob/master/epanet.gif)
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/epanet.gif)
 
 TODO
 ====
