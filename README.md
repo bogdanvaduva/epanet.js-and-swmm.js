@@ -92,6 +92,7 @@ with start point node 1 and end point node 2 or start point node 1 and end point
 node 2 and end point node 3.
 To make QWAT pgRouting friendly we added a new table called pipe_reference with the
 following structure:
+
 CREATE TABLE qwat_od.pipe_reference
 (
 id serial NOT NULL,
@@ -107,6 +108,7 @@ ON UPDATE NO ACTION ON DELETE CASCADE
 WITH (
 OIDS=FALSE
 );
+
 The second step was to create a function which splits a pipe according to my network
 layout:
 CREATE OR REPLACE FUNCTION qwat_od.fn_pipe_(var_pipe_id integer)
