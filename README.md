@@ -294,6 +294,8 @@ ROWS 1000;
 The fifth step was to run the function.
 In Figure 3 we have the result of running the function on my network between two points.
 
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/fig3.gif)
+
 The sixth step was to add a function to determine valve status:
 
 CREATE OR REPLACE FUNCTION
