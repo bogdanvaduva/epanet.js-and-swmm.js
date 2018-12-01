@@ -44,6 +44,11 @@ emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.
 
 5. Use it and enjoy!
 
+Compilation for swmm.js
+=========================
+
+TO DO
+
 SAMPLE FOR EPANET.js
 ====================
 
