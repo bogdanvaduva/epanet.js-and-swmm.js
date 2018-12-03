@@ -47,9 +47,9 @@ emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.
 Compilation for swmm.js
 =========================
 
-The steps are similar to the ones above. The changes are at step 1 where you have to download openswmm code, at step 3 you have to make changes in swmm5.c instead of epanet.c and at step 6, you have to run the following command:
+The steps are similar to the ones above. The changes are at step 1 where you have to download openswmm code, at step 3 you have to make changes in swmm5.c instead of epanet.c. If you have downloded epa.gov files you just have to go at step 6, were you have to run the following command:
 
-emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c massbal.c mathexpr.c mempool.c node.c odesolve.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o swmm.html -s EXPORTED_FUNCTIONS="['_main', '_hour']"
+emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c hotstart.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c main.c massbal.c mathexpr.c mempool.c node.c odesolve.c output.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c statsrpt.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o swmm.html -s EXPORTED_FUNCTIONS="['_main']"
 
 
 SAMPLE FOR EPANET.js
