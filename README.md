@@ -50,9 +50,11 @@ NOTE: After running emcc command, the resulted file js.js will not deal with nul
 Compilation for swmm.js
 =========================
 
-The steps are similar to the ones above. The changes are at step 1 where you have to download openswmm code, at step 3 you have to make changes in swmm5.c instead of epanet.c. If you have downloded epa.gov files you just have to go at step 6, were you have to run the following command (the command below it's for epa.gov sources):
+The steps are similar to the ones above. The changes are at step 1 where you have to download epa.gov sources or openswmm code, at step 3 you have to make changes in swmm5.c instead of epanet.c in case you downloaded openswmm code. If you have downloded epa.gov files you just have to go at step 6, were you have to run the following command (the command below it's for epa.gov sources):
 
 emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c hotstart.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c main.c massbal.c mathexpr.c mempool.c node.c odesolve.c output.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c statsrpt.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o js.html -s EXPORTED_FUNCTIONS="['_main', '_time', '_link']"
+
+For openswmm code you delete main.c from the above command and make changes required by step 3.
 
 
 SAMPLE FOR EPANET.js
