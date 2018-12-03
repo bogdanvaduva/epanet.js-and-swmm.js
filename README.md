@@ -332,7 +332,7 @@ LANGUAGE sql VOLATILE
 
 COST 100;
 
-The last step required by epanet.js is to pass the results of the function found in /sql/qwat_od/fn_epanet.sql to the epanet.html and view the result.
+The last step required by epanet.js is to pass the results of the function found in [/sql/qwat_od/fn_epanet.sql](./sql/qwat_od/fn_epanet.sql) to the epanet.html and view the result.
 
-Regarding QGEP the problem is a little bit easier, because we already know node a and node b, but you will still have to pass the results of the function found in /sql/qgep_od/fn_swmm.sql to swmm.html and then view the results. 
+Regarding QGEP the problem is a little bit easier, because we already know node a and node b, but you will still have to pass the results of the function found in [/sql/qgep_od/fn_swmm.sql](./sql/qgep_od/fn_swmm.sql) to swmm.html and then view the results. 
 
