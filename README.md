@@ -44,6 +44,9 @@ emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.
 
 5. Use it and enjoy!
 
+NOTE: After running emcc command, the resulted file js.js will not deal with null nodes in FS, so YOU will have to make some changes there. 
+====
+
 Compilation for swmm.js
 =========================
 
