@@ -171,7 +171,7 @@ var margin = {top: 1, right: 1, bottom: 6, left: 1},
 var formatNumber = d3.format(",.3f"),
     format = function(d) {
         var units = epanetjs.model['OPTIONS']['Units'].replace(/\s*/g,'') || 'CMD',
-                u = epanetjs.unit(units, $('#linkResult').val().toUpperCase());
+            u = epanetjs.unit(units, $('#linkResult').val().toUpperCase());
         return formatNumber(d)+' '+u;
     },
     color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -266,30 +266,6 @@ var epanetjs = function() {
 
 	};
 
-        svg.getTextSize = function() {
-            var d3text = d3.select(this);
-            var circ = d3.select(this.previousElementSibling); // in other cases could be parentElement or nextElementSibling
-            var radius = Number(circ.attr("r"));
-            var offset = Number(d3text.attr("dy"));
-            var textWidth = this.getComputedTextLength(); // TODO: this could be bounding box instead
-            var availWidth = svg.chordWidth(Math.abs(offset), radius); // TODO: could adjust based on ratio of dy to radius 
-            availWidth = availWidth * 0.85; // fixed 15% 'padding' for now, could be more dynamic/precise based on above TODOs
-            d3text.attr("data-scale", availWidth / textWidth); // sets the data attribute, which is read in the next step
-        };
-    
-        svg.chordWidth = function(dFromCenter, radius) {
-            if (dFromCenter > radius) return Number.NaN;
-            if (dFromCenter === radius) return 0;
-            if (dFromCenter === 0) return radius * 2;
-
-            // a^2 + b^2 = c^2
-            var a = dFromCenter;
-            var c = radius;
-            var b = Math.sqrt(Math.pow(c, 2) - Math.pow(a, 2)); // 1/2 of chord length
-
-            return b * 2;
-        };
-        
 	svg.clearTooltips = function(element) {
             document.getElementById('tooltip').style.display = 'none';
 	};
@@ -413,6 +389,8 @@ var epanetjs = function() {
 					.attr('height', svg.nodeSize)
 					.attr('x', centerx)
 					.attr('y', svg.top - centery - svg.nodeSize)
+                                        .attr('data-x', centerx)
+                                        .attr('data-y', centery)
 					.attr('transform', transform)
                                         .attr('class', 'pump2')
 					.attr('style', 'fill:'+color+';');
@@ -456,6 +434,7 @@ var epanetjs = function() {
 			    .attr('y', svg.top - c.y - svg.nodeSize)
 			    .attr('data-x', c.x)
 			    .attr('data-y', svg.top - c.y)
+                            .attr('data-y0', c.y)
 			    .attr('title', coordinate)
 			    .attr('onmouseover', 'epanetjs.svg.tooltip(evt.target)')
 			    .attr('onmouseout', 'epanetjs.svg.clearTooltips(evt.target)')
@@ -498,7 +477,11 @@ var epanetjs = function() {
                             .attr('x', (l['x']?l['x']:0) - svg.nodeSize * t.length / 3)
                             .attr('y', svg.top - (l['y']?l['y']:0) + svg.nodeSize * 2)
                             .text(t)
+			    .attr('data-x', l['x'])
+			    .attr('data-y', l['y'])
+			    .attr('data-label', t)
                             .attr('style', 'font-family: Verdana, Arial, sans; font-size:' + (svg.nodeSize * 2) + 'px;')
+                            .attr('class', 'label')
                             .attr('fill', epanetjs.defaultColor);
                 }
 	    }
@@ -528,16 +511,26 @@ var epanetjs = function() {
     
     epanetjs.applyScale = function(svg) {
         var scaleFactor = 1;
-        
+        //vertice
         d3.select('#svgSimple > g').selectAll('.vertice').each(function() { 
             this.setAttribute('stroke-width', scaleFactor * svg.strokeWidth / epanetjs.currentScale );
         });
+        //pipe
         d3.select('#svgSimple > g').selectAll('.pipe').each(function() { 
             this.setAttribute('stroke-width', scaleFactor * svg.strokeWidth / epanetjs.currentScale );
         });
+        //junction
         d3.select('#svgSimple > g').selectAll('.junction').each(function() { 
             this.setAttribute('r', svg.nodeSize / epanetjs.currentScale );
         });
+        //reservoir
+        d3.select('#svgSimple > g').selectAll('.tank').each(function() { 
+            this.setAttribute('height', svg.nodeSize / epanetjs.currentScale * 2);
+            this.setAttribute('width', svg.nodeSize / epanetjs.currentScale * 2);
+            this.setAttribute('x', parseFloat(this.dataset.x) - svg.nodeSize / epanetjs.currentScale);
+            this.setAttribute('y', svg.top - parseFloat(this.dataset.y0) - svg.nodeSize / epanetjs.currentScale);
+        });
+        //tank
         d3.select('#svgSimple > g').selectAll('.tank').each(function() { 
             this.setAttribute('points', (parseFloat(this.dataset.x) - 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale) + ' ' + 
                                 (parseFloat(svg.top) - parseFloat(this.dataset.y0) - 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale) + ' ' +
@@ -546,6 +539,7 @@ var epanetjs = function() {
                                 parseFloat(this.dataset.x) + ' ' + 
                                 (parseFloat(svg.top) - parseFloat(this.dataset.y0) + 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale));
         });
+        //valve
         d3.select('#svgSimple > g').selectAll('.valve1').each(function() { 
             this.setAttribute('points', (parseFloat(this.dataset.x) + 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale) + ' ' + 
                                 (parseFloat(svg.top) - parseFloat(this.dataset.y) - 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale) + ' ' +
@@ -562,6 +556,22 @@ var epanetjs = function() {
                                 (parseFloat(this.dataset.x)  - 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale)+ ' ' + 
                                 (parseFloat(svg.top) - parseFloat(this.dataset.y) + 1.5 * scaleFactor * svg.nodeSize / epanetjs.currentScale));
         });
+        //pump
+        d3.select('#svgSimple > g').selectAll('.pump1').each(function() { 
+            this.setAttribute('r', svg.nodeSize / epanetjs.currentScale );
+        });
+        d3.select('#svgSimple > g').selectAll('.pump2').each(function() { 
+            this.setAttribute('width', svg.nodeSize / epanetjs.currentScale * 1.5);
+            this.setAttribute('height', svg.nodeSize / epanetjs.currentScale );
+            this.setAttribute('y', svg.top - parseFloat(this.dataset.y) - svg.nodeSize / epanetjs.currentScale);
+        });
+        //label
+        d3.select('#svgSimple > g').selectAll('.label').each(function() { 
+            this.setAttribute('x', (parseFloat(this.dataset.x)?parseFloat(this.dataset.x):0) - svg.nodeSize / epanetjs.currentScale * this.dataset.label.length / 3);
+            this.setAttribute('y', svg.top - (parseFloat(this.dataset.y)?parseFloat(this.dataset.y):0) + svg.nodeSize / epanetjs.currentScale * 2);
+            this.setAttribute('style', 'font-family: Verdana, Arial, sans; font-size:' + (svg.nodeSize / epanetjs.currentScale * 2) + 'px;')
+        });
+        
         if (d3.event) {
             d3.select('#svgSimple > g')
               .attr('transform', d3.event.transform);
