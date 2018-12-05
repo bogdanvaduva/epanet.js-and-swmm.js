@@ -62,13 +62,17 @@ SAMPLE FOR EPANET.js
 
 ![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/epanet.gif)
 
+SAMPLE FOR SWMM.js
+====================
+
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/swmm.gif)
+
 TODO
 ====
-to modify the generated js.js to deal with null nodes.
+to modify the generated epanet js.js to deal with null nodes.
 
 to change sample.html 
 
-to add swmm.js
 
 Libraries
 =========
