@@ -140,7 +140,8 @@ d3.epanetresult = function() {
 		r[i + 1]['LINKS'][id] = {
 		    'FLOW': er.readFloat(c, offsetLinkResults + (j * 4)),
 		    'VELOCITY': er.readFloat(c, offsetLinkResults + ((count['LINKS'] + j) * 4)),
-		    'HEADLOSS': er.readFloat(c, offsetLinkResults + ((2 * count['LINKS'] + j) * 4))
+		    'HEADLOSS': er.readFloat(c, offsetLinkResults + ((2 * count['LINKS'] + j) * 4)),
+		    'QUALITY': er.readFloat(c, offsetLinkResults + ((3 * count['LINKS'] + j) * 4))
 		};
 	    }
 	    
