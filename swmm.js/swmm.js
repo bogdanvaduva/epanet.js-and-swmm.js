@@ -860,20 +860,6 @@ var swmmjs = function() {
     };
     
     swmmjs.svg = swmmjs.svg();
-
-    // Make toolkit functions accessible in JavaScript
-    swmmjs.toolkit = function() {
-	var toolkit = function() {
-	};
-
-	toolkit.hour = function(time, units) {
-	    // Function has to be exported by emcc
-	    var hour = Module.cwrap('time', 'double', ['string', 'string']);
-	    return hour(time, units);
-	};
-	return toolkit;
-    };
-    swmmjs.toolkit = swmmjs.toolkit();
     
     swmmjs.renderAnalysis = function(renderLegendInput) {	
 	var renderLegend = renderLegendInput || swmmjs.renderLegend;
