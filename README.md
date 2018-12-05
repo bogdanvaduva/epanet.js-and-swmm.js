@@ -19,30 +19,7 @@ Requirements
 Compilation for epanet.js
 =========================
 
-A shell like Bash need to be used to build epanet.js. 
-1. Download epanet source files from https://www.epa.gov/sites/production/files/2018-10/en2source.zip
-2. Unzip the files into the desired folder. I will use for our example /home/test/epanet. Go into /home/test/epanet .
-3. Modify the file epanet.c as follows:
-.....
-
-/*** New compile directives ***/  //(2.00.11 - LR)
-
-#define CLE     /* Compile as a command line executable */
-
-//#define SOL     /* Compile as a shared object library */
-
-//#define DLL       /* Compile as a Windows DLL */ 
-
-
-.....
-
-4. Put the content of /js folder into /home/test/epanet.
-5. Download shell.html or create a new one that has a similar structure.
-6. Run the following command 
-
-emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.c output.c quality.c report.c rules.c smatrix.c -o js.html --pre-js js/pre.js --post-js js/post.js --shell-file shell.html --js-library js/epanet.js -s EXPORTED_FUNCTIONS="['_main', '_hour']"
-
-5. Use it and enjoy!
+Check [epanet.js](/epanet.js)
 
 NOTE: After running emcc command, the resulted file js.js will not deal with null nodes in FS, so YOU will have to make some changes there. 
 ====
@@ -50,11 +27,7 @@ NOTE: After running emcc command, the resulted file js.js will not deal with nul
 Compilation for swmm.js
 =========================
 
-The steps are similar to the ones above. The changes are at step 1 where you have to download epa.gov sources or openswmm code, at step 3 you have to make changes in swmm5.c instead of epanet.c in case you downloaded openswmm code. If you have downloded epa.gov files you just have to go at step 6, were you have to run the following command (the command below it's for epa.gov sources):
-
-emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c hotstart.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c main.c massbal.c mathexpr.c mempool.c node.c odesolve.c output.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c statsrpt.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o js.html -s EXPORTED_FUNCTIONS="['_main', '_time', '_link']"
-
-For openswmm code you delete main.c from the above command and make changes required by step 3.
+Check [swmm.js](/swmm.js)
 
 
 SAMPLE FOR EPANET.js
