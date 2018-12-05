@@ -48,7 +48,7 @@ emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c er
 SAMPLE
 ======
 
-![Example of how it's used in an application](https://github.com/bogdanvaduva/swmm.js/blob/master/swmm.gif)
+![Example of how it's used in an application](https://github.com/bogdanvaduva/epanet.js-and-swmm.js/blob/master/swmm.gif)
 
 TODO
 ====
