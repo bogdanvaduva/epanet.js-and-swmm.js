@@ -546,30 +546,6 @@ var swmmjs = function() {
 
 	};
 
-        svg.getTextSize = function() {
-            var d3text = d3.select(this);
-            var circ = d3.select(this.previousElementSibling); // in other cases could be parentElement or nextElementSibling
-            var radius = Number(circ.attr("r"));
-            var offset = Number(d3text.attr("dy"));
-            var textWidth = this.getComputedTextLength(); // TODO: this could be bounding box instead
-            var availWidth = svg.chordWidth(Math.abs(offset), radius); // TODO: could adjust based on ratio of dy to radius 
-            availWidth = availWidth * 0.85; // fixed 15% 'padding' for now, could be more dynamic/precise based on above TODOs
-            d3text.attr("data-scale", availWidth / textWidth); // sets the data attribute, which is read in the next step
-        };
-    
-        svg.chordWidth = function(dFromCenter, radius) {
-            if (dFromCenter > radius) return Number.NaN;
-            if (dFromCenter === radius) return 0;
-            if (dFromCenter === 0) return radius * 2;
-
-            // a^2 + b^2 = c^2
-            var a = dFromCenter;
-            var c = radius;
-            var b = Math.sqrt(Math.pow(c, 2) - Math.pow(a, 2)); // 1/2 of chord length
-
-            return b * 2;
-        };
-        
 	svg.clearTooltips = function(element) {
             document.getElementById('tooltip').style.display = 'none';
 	};
