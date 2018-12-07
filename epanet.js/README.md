@@ -84,13 +84,21 @@ become
 and
 
 .....
+
 ,unlink:function (path) {
+
         var lookup = FS.lookupPath(path, { parent: true });
+
         var parent = lookup.node;
+
         var name = PATH.basename(path);
+
         var node = FS.lookupNode(parent, name);
+
         var err = FS.mayDelete(parent, name, false);
+
         if (err) {
+
 .....
 
 become
@@ -98,13 +106,21 @@ become
 .....
 
 ,unlink:function (path) {
+
 	if (path === "")
+
 		return;
+
         var lookup = FS.lookupPath(path, { parent: true });
+
         var parent = lookup.node;
+
         var name = PATH.basename(path);
+
         var node = FS.lookupNode(parent, name);
+
         var err = FS.mayDelete(parent, name, false);
+
         if (err) {
 
 .....
