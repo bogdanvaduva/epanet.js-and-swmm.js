@@ -41,7 +41,7 @@ A shell like Bash need to be used to build epanet.js.
 5. Download shell.html or create a new one that has a similar structure.
 6. Run the following command 
 
-emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c hotstart.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c main.c massbal.c mathexpr.c mempool.c node.c odesolve.c output.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c statsrpt.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o js.html -s EXPORTED_FUNCTIONS="['_main', '_time', '_link']" -s BINARYEN_TRAP_MODE='clamp' -s ASSERTIONS=0
+emcc -O1 swmm5.c climate.c controls.c culvert.c datetime.c dwflow.c dynwave.c error.c exfil.c findroot.c flowrout.c forcmain.c gage.c gwater.c hash.c hotstart.c iface.c infil.c inflow.c input.c inputrpt.c keywords.c kinwave.c landuse.c lid.c lidproc.c link.c main.c massbal.c mathexpr.c mempool.c node.c odesolve.c output.c project.c qualrout.c rain.c rdii.c report.c roadway.c routing.c runoff.c shape.c snow.c stats.c statsrpt.c subcatch.c surfqual.c table.c toposort.c transect.c treatmnt.c xsect.c -o js.html --pre-js js/pre.js --post-js js/post.js --js-library js/library.js -s EXPORTED_FUNCTIONS="['_main', '_time', '_link']" -s BINARYEN_TRAP_MODE='clamp' -s ASSERTIONS=0
 
 5. Use it and enjoy!
 
