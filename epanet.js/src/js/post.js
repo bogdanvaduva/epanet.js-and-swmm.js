@@ -1,8 +1,4 @@
-
-Module.asmLibraryArg["_writecon"] = function (t) { 
-        console.log(Pointer_stringify(t)); 
-};
-
+Module["Pointer_stringify"] = Pointer_stringify;
 Module["intArrayToString"] = intArrayToString;
 Module["getValue"] = getValue;
 Module["cwrap"] = cwrap;

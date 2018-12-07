@@ -97,9 +97,12 @@ d3.epanetresult = function() {
     epanetresult.string = Module._malloc(255);
 
     epanetresult.parse = function(filename) {
-	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : ''),
+	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : undefined),
 		r = {},
-		er = epanetresult,
+		er = epanetresult;
+        if (!c) 
+            return r;
+        var
 		count = {
 	    'NODES': er.readInt(c, 8),
 	    'TANKS': er.readInt(c, 12),
@@ -379,6 +382,19 @@ var epanetjs = function() {
                                         .attr('class', 'pipe')
 					.attr('stroke-width', svg.strokeWidth);
 			    } else if ('PUMPS' === s) {
+                                // line
+				el.append('g').attr('id',link).append('line')
+					.attr('x1', c1.x)
+					.attr('y1', svg.top - c1.y)
+					.attr('x2', c2.x)
+					.attr('y2', svg.top - c2.y)
+                                        .attr('title', link)
+                                        .on('mouseover', epanetjs.svg.tooltip)
+                                        .on('mouseout', epanetjs.svg.clearTooltips)
+					.attr('stroke', color)
+                                        .attr('class', 'pipe')
+					.attr('stroke-width', svg.strokeWidth);
+                                //pump
 				el.append('g').attr('id',link).append('circle')
 					.attr('cx', centerx)
 					.attr('cy', svg.top - centery)
@@ -525,7 +541,7 @@ var epanetjs = function() {
             this.setAttribute('r', svg.nodeSize / epanetjs.currentScale );
         });
         //reservoir
-        d3.select('#svgSimple > g').selectAll('.tank').each(function() { 
+        d3.select('#svgSimple > g').selectAll('.reservoir').each(function() { 
             this.setAttribute('height', svg.nodeSize / epanetjs.currentScale * 2);
             this.setAttribute('width', svg.nodeSize / epanetjs.currentScale * 2);
             this.setAttribute('x', parseFloat(this.dataset.x) - svg.nodeSize / epanetjs.currentScale);
@@ -918,27 +934,74 @@ var epanetjs = function() {
     };
 
     epanetjs.run = function(Module) {
-        FS.quit();
         Module.arguments = ['/input.inp', '/report.txt', '/report.bin'];
         Module.preRun = [function () {
-                FS.createPath('/', '/', true, true);
+                try {
+                    FS.quit();
+                } catch (e) {
+                    console.log(e);
+                }
+                try {
+                    Object.keys(FS.nameTable).forEach(function (key) {
+                        var el = FS.nameTable[key];
+                        if (!el) {
+                            FS.nameTable.splice(key, 1);
+                        }
+                    });
+                    FS.init();
+                    if (!FS.findObject('/dev/stdin')) {
+                        FS.symlink('stdin', '/dev/stdin');
+                    }
+                    FS.createPath('', '', true, true);
+                } catch (e) {
+                    console.log(e);
+                }
                 FS.ignorePermissions = true;
                 try
                 {
-                    var inp = document.getElementById('inpFile').value;
-                    var f = FS.findObject('input.inp');
-                    if (f) {
+                    if (FS.findObject('input.inp')) {
                         FS.unlink('input.inp');
                     }
+                    if (FS.findObject('report.txt')) {
+                        FS.unlink('report.txt');
+                    }
+                    if (FS.findObject('report.bin')) {
+                        FS.unlink('report.bin');
+                    }
+                    Object.keys(FS.nameTable).forEach(function (key) {
+                        var el = FS.nameTable[key];
+                        if (el) {
+                            if (el.name === 'input.inp') {
+                                FS.nameTable.splice(key, 1);
+                            }
+                            if (el.name === 'report.txt') {
+                                FS.nameTable.splice(key, 1);
+                            }
+                            if (el.name === 'report.bin') {
+                                FS.nameTable.splice(key, 1);
+                            }
+                        }
+                    });
+                    var inp = document.getElementById('inpFile').value;
                     FS.createDataFile('/', 'input.inp', inp, true, true);
+                    Object.keys(FS.nameTable).forEach(function (key) {
+                        var el = FS.nameTable[key];
+                        if (el) {
+                            if (el.name === 'null') {
+                                FS.nameTable.splice(key, 1);
+                            }
+                        }
+                    });
                 } catch (e) {
-                    console.log('/input.inp creation failed');
+                    console.log(e);
                 }
             }];
         Module.postRun = [function () {
                 epanetjs.renderAnalysis();
-                var rpt = Module.intArrayToString(FS.findObject('/report.txt').contents);
-                document.getElementById('rptFile').innerHTML = rpt;
+                if (FS.findObject('/report.txt')) {
+                    var rpt = Module.intArrayToString(FS.findObject('/report.txt').contents);
+                    document.getElementById('rptFile').innerHTML = rpt;
+                }
                 Module['calledRun'] = false;
             }];
         Module.print = (function () {

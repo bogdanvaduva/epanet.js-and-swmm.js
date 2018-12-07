@@ -41,7 +41,7 @@ A shell like Bash need to be used to build epanet.js.
 5. Download shell.html or create a new one that has a similar structure.
 6. Run the following command 
 
-emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.c output.c quality.c report.c rules.c smatrix.c -o js.html --pre-js js/pre.js --post-js js/post.js --shell-file shell.html --js-library js/epanet.js -s EXPORTED_FUNCTIONS="['_main', '_hour']"
+emcc -O1 epanet.c hash.c hydraul.c inpfile.c input1.c input2.c input3.c mempool.c output.c quality.c report.c rules.c smatrix.c -o js.html --pre-js js/pre.js  --post-js js/post.js --js-library js/library.js -s EXPORTED_FUNCTIONS="['_main', '_hour']" -s BINARYEN_TRAP_MODE='clamp' -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s TOTAL_MEMORY=16777216 -s ALLOW_MEMORY_GROWTH=1
 
 5. Use it and enjoy!
 
@@ -52,7 +52,63 @@ SAMPLE
 
 TODO
 ====
-to modify the generated js.js to deal with null nodes.
+If the compilation runs without errors you will have to go into the new generated js.js file and make a few changes:
+
+...
+  Module["noExitRuntime"] = true;
+
+run();
+
+
+
+
+
+// {{MODULE_ADDITIONS}}
+.....
+
+become
+
+...
+  Module["noExitRuntime"] = true;
+
+//run();
+
+
+
+
+
+// {{MODULE_ADDITIONS}}
+.....
+
+
+and
+
+.....
+,unlink:function (path) {
+        var lookup = FS.lookupPath(path, { parent: true });
+        var parent = lookup.node;
+        var name = PATH.basename(path);
+        var node = FS.lookupNode(parent, name);
+        var err = FS.mayDelete(parent, name, false);
+        if (err) {
+.....
+
+become
+
+.....
+
+,unlink:function (path) {
+	if (path === "")
+		return;
+        var lookup = FS.lookupPath(path, { parent: true });
+        var parent = lookup.node;
+        var name = PATH.basename(path);
+        var node = FS.lookupNode(parent, name);
+        var err = FS.mayDelete(parent, name, false);
+        if (err) {
+
+.....
+
 to change sample.html 
 
 Libraries
