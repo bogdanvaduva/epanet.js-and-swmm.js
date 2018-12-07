@@ -162,7 +162,7 @@ d3.swmmresult = function() {
     swmmresult.string = Module._malloc(255);
 
     swmmresult.parse = function(filename) {
-	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : ''),
+	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : undefined),
 		r = {},
 		er = swmmresult;
         
@@ -189,7 +189,13 @@ d3.swmmresult = function() {
         var
             offset, offset0;
             
-        var stat = FS.stat(filename);
+        var stat = null;
+        try {
+            if (c)
+                stat = FS.stat(filename);
+        } catch (e) {
+            console.log(e);
+        }
         
         if (stat) {
             if (stat.size < 14*RECORDSIZE) {
@@ -618,7 +624,7 @@ var swmmjs = function() {
 				node2 = l.NODE2 || false,
 				c1 = model.COORDINATES[node1] || false,
 				c2 = model.COORDINATES[node2] || false,
-				v = (swmmjs.results[step] ? (swmmjs.results[step]['LINK'][link] ? swmmjs.results[step]['LINK'][link][linkResult] : 0): 0),
+				v = (swmmjs.results[step] ? ( swmmjs.results[step]['LINK'] ? (swmmjs.results[step]['LINK'][link] ? swmmjs.results[step]['LINK'][link][linkResult] : 0) : 0 ) : 0),
 				r = swmmjs.colors['LINKS'],
 				linkColors = swmmjs.svg.colors['LINKS'],
 				color = (swmmjs.INPUT === swmmjs.mode ? swmmjs.defaultColor: linkColors[r(v)]);
@@ -697,7 +703,7 @@ var swmmjs = function() {
 	    for (var coordinate in model.COORDINATES)
 	    {
 		var c = model.COORDINATES[coordinate],			
-			v = (swmmjs.results[step] ? (swmmjs.results[step]['NODE'][coordinate] ? swmmjs.results[step]['NODE'][coordinate][nodeResult] : 0) : 0),
+			v = (swmmjs.results[step] ? (swmmjs.results[step]['NODE'] ? (swmmjs.results[step]['NODE'][coordinate] ? swmmjs.results[step]['NODE'][coordinate][nodeResult] : 0) : 0) : 0),
 			r = swmmjs.colors['NODES'],
 			nodeColors = swmmjs.svg.colors['NODES'],
 			color = (swmmjs.INPUT === swmmjs.mode ? swmmjs.defaultColor: nodeColors[r(v)]);
@@ -984,11 +990,7 @@ var swmmjs = function() {
     };
 
     swmmjs.run = function(Module) {
-        try {
-            FS.quit();
-        } catch (e) {
-            console.log(e);
-        }
+        FS.quit();
         Module.arguments = ['/input.inp', '/report.txt', '/report.bin'];
         Module.preRun = [function () {
                 try
