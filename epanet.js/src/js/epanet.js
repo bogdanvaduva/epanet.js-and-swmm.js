@@ -934,7 +934,7 @@ var epanetjs = function() {
     };
 
     epanetjs.run = function(Module) {
-        Module.arguments = ['/input.inp', '/report.txt', '/report.bin'];
+        Module.arguments = ['input.inp', '/report.txt', '/report.bin'];
         Module.preRun = [function () {
                 try {
                     FS.quit();
@@ -971,6 +971,9 @@ var epanetjs = function() {
                     Object.keys(FS.nameTable).forEach(function (key) {
                         var el = FS.nameTable[key];
                         if (el) {
+                            if (el.name === 'null') {
+                                FS.nameTable.splice(key, 1);
+                            }
                             if (el.name === 'input.inp') {
                                 FS.nameTable.splice(key, 1);
                             }
