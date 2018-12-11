@@ -112,7 +112,7 @@ d3.swmmresult = function() {
             4: 'Outlet'}
     };
             
-    VARCODE = { // not used
+    VARCODE = { 
         0: {0: 'Rainfall',
             1: 'Snow_depth',
             2: 'Evaporation_loss',
@@ -161,8 +161,8 @@ d3.swmmresult = function() {
     swmmresult.i4 = Module._malloc(4);
     swmmresult.string = Module._malloc(255);
 
-    swmmresult.parse = function(filename) {
-	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : undefined),
+    swmmresult.parse = function(filename, size) {
+	var c = (FS.findObject(filename) ? FS.findObject(filename).contents : (typeof filename === "object"? filename : undefined)),
 		r = {},
 		er = swmmresult;
         
@@ -194,86 +194,100 @@ d3.swmmresult = function() {
             if (c)
                 stat = FS.stat(filename);
         } catch (e) {
+            stat = size || "undefined";
             console.log(e);
         }
         
         if (stat) {
-            if (stat.size < 14*RECORDSIZE) {
+            var size = (stat.size ? stat.size : stat);
+            if (size < 14*RECORDSIZE) {
                 return 1;
             }
-            offsetOID = er.readInt(c, stat.size-6*RECORDSIZE, RECORDSIZE);
-            offset0 = er.readInt(c, stat.size-5*RECORDSIZE, RECORDSIZE);
-            StartPos = er.readInt(c, stat.size-4*RECORDSIZE, RECORDSIZE);
-            SWMM_Nperiods = er.readInt(c, stat.size-3*RECORDSIZE, RECORDSIZE);
-            errCode = er.readInt(c, stat.size-2*RECORDSIZE, RECORDSIZE);
-            magic2 = er.readInt(c, stat.size-RECORDSIZE, RECORDSIZE);
+            this.offsetOID = er.readInt(c, size-6*RECORDSIZE, RECORDSIZE);
+            offset0 = er.readInt(c, size-5*RECORDSIZE, RECORDSIZE);
+            this.StartPos = er.readInt(c, size-4*RECORDSIZE, RECORDSIZE);
+            this.SWMM_Nperiods = er.readInt(c, size-3*RECORDSIZE, RECORDSIZE);
+            errCode = er.readInt(c, size-2*RECORDSIZE, RECORDSIZE);
+            magic2 = er.readInt(c, size-RECORDSIZE, RECORDSIZE);
             magic1 = er.readInt(c, 0, RECORDSIZE);
             
             if (magic1 !== magic2) return 1;
             else if (errCode !== 0) return 1;
-            else if (SWMM_Nperiods===0) return 1;
+            else if (this.SWMM_Nperiods===0) return 1;
             
             version = er.readInt(c, RECORDSIZE, RECORDSIZE);
-            SWMM_FlowUnits = er.readInt(c, 2*RECORDSIZE, RECORDSIZE);
-            SWMM_Nsubcatch = er.readInt(c, 3*RECORDSIZE, RECORDSIZE);
-            SWMM_Nnodes = er.readInt(c, 4*RECORDSIZE, RECORDSIZE);
-            SWMM_Nlinks = er.readInt(c, 5*RECORDSIZE, RECORDSIZE);
-            SWMM_Npolluts = er.readInt(c, 6*RECORDSIZE, RECORDSIZE);
+            this.SWMM_FlowUnits = er.readInt(c, 2*RECORDSIZE, RECORDSIZE);
+            this.SWMM_Nsubcatch = er.readInt(c, 3*RECORDSIZE, RECORDSIZE);
+            this.SWMM_Nnodes = er.readInt(c, 4*RECORDSIZE, RECORDSIZE);
+            this.SWMM_Nlinks = er.readInt(c, 5*RECORDSIZE, RECORDSIZE);
+            this.SWMM_Npolluts = er.readInt(c, 6*RECORDSIZE, RECORDSIZE);
             
             // Skip over saved subcatch/node/link input values
-            offset = (SWMM_Nsubcatch+2) * RECORDSIZE     // Subcatchment area
-                       + (3*SWMM_Nnodes+4) * RECORDSIZE  // Node type, invert & max depth
-                       + (5*SWMM_Nlinks+6) * RECORDSIZE; // Link type, z1, z2, max depth & length
+            offset = (this.SWMM_Nsubcatch+2) * RECORDSIZE     // Subcatchment area
+                       + (3*this.SWMM_Nnodes+4) * RECORDSIZE  // Node type, invert & max depth
+                       + (5*this.SWMM_Nlinks+6) * RECORDSIZE; // Link type, z1, z2, max depth & length
             offset = offset0 + offset;
 
-            SubcatchVars = er.readInt(c, offset, RECORDSIZE);
-            NodeVars = er.readInt(c, offset + (SubcatchVars*RECORDSIZE), RECORDSIZE);
-            LinkVars = er.readInt(c, offset + (SubcatchVars*RECORDSIZE) + (NodeVars*RECORDSIZE), RECORDSIZE);
-            SysVars = er.readInt(c, offset + (SubcatchVars*RECORDSIZE) + (NodeVars*RECORDSIZE) + (LinkVars*RECORDSIZE), RECORDSIZE);
-
-            offset = StartPos - 3*RECORDSIZE;
+            this.SubcatchVars = er.readInt(c, offset, RECORDSIZE);
+            this.NodeVars = er.readInt(c, offset + (this.SubcatchVars*RECORDSIZE), RECORDSIZE);
+            this.LinkVars = er.readInt(c, offset + (this.SubcatchVars*RECORDSIZE) + (this.NodeVars*RECORDSIZE), RECORDSIZE);
+            this.SysVars = er.readInt(c, offset + (this.SubcatchVars*RECORDSIZE) + (this.NodeVars*RECORDSIZE) + (this.LinkVars*RECORDSIZE), RECORDSIZE);
+            
+            offset = this.StartPos - 3*RECORDSIZE;
             var days = er.readInt(c, offset, 2*RECORDSIZE) + 1;
             this.SWMM_StartDate = new Date('12/31/1899');
             this.SWMM_StartDate = new Date(this.SWMM_StartDate.setDate(this.SWMM_StartDate.getDate() + days));
-            SWMM_ReportStep = er.readInt(c, offset + 2*RECORDSIZE, RECORDSIZE);
+            this.SWMM_ReportStep = er.readInt(c, offset + 2*RECORDSIZE, RECORDSIZE);
             
-            BytesPerPeriod = 2*RECORDSIZE + 
-                    (SWMM_Nsubcatch*SubcatchVars +
-                     SWMM_Nnodes*NodeVars +
-                     SWMM_Nlinks*LinkVars +
-                     SysVars)*RECORDSIZE;
+            this.BytesPerPeriod = RECORDSIZE*(2 + 
+                    this.SWMM_Nsubcatch*this.SubcatchVars +
+                    this.SWMM_Nnodes*this.NodeVars +
+                    this.SWMM_Nlinks*this.LinkVars +
+                    this.SysVars); // it suppose to calculate bytes per period but i have a difference of 152. So I am not using it
+            
+            if (this.NodeVars>6 && this.SWMM_Npolluts===0) {
+                this.NodeVars = 6;
+            }
+            
+            if (this.LinkVars>5 && this.SWMM_Npolluts===0) {
+                this.LinkVars = 5;
+            }
             
             var variables = {};
-            var nr = offsetOID;
+            var nr = this.offsetOID;
             // Object names
             var subcatch = {}, node = {}, link = {}, pollut = {};
-            for (var i =0; i< SWMM_Nsubcatch; i++) {
+            for (var i =0; i< this.SWMM_Nsubcatch; i++) {
                 var no = er.readInt(c, nr, RECORDSIZE);
                 subcatch[i] = [ Module.intArrayToString(Array.prototype.slice.call(c,nr, nr + no + RECORDSIZE)).replace(/[^a-z0-9_\.]/gi, '') ];
                 nr = nr + no + RECORDSIZE;
             }
-            variables['SUBCATCH'] = subcatch;
+            variables['SUBCATCH'] = {};
+            variables['SUBCATCH']['items'] = subcatch;
             
-            for (var i =0; i< SWMM_Nnodes; i++) {
+            for (var i =0; i< this.SWMM_Nnodes; i++) {
                 var no = er.readInt(c, nr, RECORDSIZE);
                 node[i] = [ Module.intArrayToString(Array.prototype.slice.call(c,nr, nr + no + RECORDSIZE)).replace(/[^a-z0-9_\.]/gi, '') ];
                 nr = nr + no + RECORDSIZE;
             }
-            variables['NODE'] = node;
+            variables['NODE'] = {};
+            variables['NODE']['items'] = node;
             
-            for (var i =0; i< SWMM_Nlinks; i++) {
+            for (var i =0; i< this.SWMM_Nlinks; i++) {
                 var no = er.readInt(c, nr, RECORDSIZE);
                 link[i] = [ Module.intArrayToString(Array.prototype.slice.call(c,nr, nr + no + RECORDSIZE)).replace(/[^a-z0-9_\.]/gi, '') ];
                 nr = nr + no + RECORDSIZE;
             }
-            variables['LINK'] = link;
+            variables['LINK'] = {};
+            variables['LINK']['items'] = link;
             
-            for (var i =0; i< SWMM_Npolluts; i++) {
+            for (var i =0; i< this.SWMM_Npolluts; i++) {
                 var no = er.readInt(c, nr, RECORDSIZE);
                 pollut[i] = Module.intArrayToString(Array.prototype.slice.call(c,nr, nr + no + RECORDSIZE)).replace(/[^a-z0-9_\.]/gi, '');
                 nr = nr + no + RECORDSIZE;
             }
-            variables['POLLUT'] = pollut;
+            variables['POLLUT'] = {};
+            variables['POLLUT']['items'] = pollut;
             
             while (nr<offset0) {
                 var nm = er.readInt(c, nr, RECORDSIZE);
@@ -294,7 +308,7 @@ d3.swmmresult = function() {
             variables['SUBCATCH']['init'] = vals;
             
             vals = [];
-            for (var i =0; i< SWMM_Nsubcatch; i++) {
+            for (var i =0; i< this.SWMM_Nsubcatch; i++) {
                 var no = er.readInt(c, nr, RECORDSIZE);
                 nr = nr + RECORDSIZE;
                 vals.push(no);
@@ -317,7 +331,7 @@ d3.swmmresult = function() {
             variables['NODE']['init'] = vals;
             
             vals = [];
-            for (var i =0; i< SWMM_Nnodes; i++) {
+            for (var i =0; i< this.SWMM_Nnodes; i++) {
                 var el = {};
                 var val = [];
                 var no = er.readInt(c, nr, RECORDSIZE);
@@ -329,7 +343,7 @@ d3.swmmresult = function() {
                 no = er.readFloat(c, nr, RECORDSIZE);
                 nr = nr + RECORDSIZE;
                 val.push(no);
-                el[variables['NODE'][i]] = val;
+                el[variables['NODE']['items'][i]] = val;
                 vals.push(el);
             }
             variables['NODE']['properties'] = vals;
@@ -356,7 +370,7 @@ d3.swmmresult = function() {
             variables['LINK']['init'] = vals;
 
             vals = [];
-            for (var i =0; i< SWMM_Nlinks; i++) {
+            for (var i =0; i< this.SWMM_Nlinks; i++) {
                 var el = {};
                 var val = [];
                 var no = er.readInt(c, nr, RECORDSIZE);
@@ -374,7 +388,7 @@ d3.swmmresult = function() {
                 no = er.readFloat(c, nr, RECORDSIZE);
                 nr = nr + RECORDSIZE;
                 val.push(no);
-                el[variables['LINK'][i]] = val;
+                el[variables['LINK']['items'][i]] = val;
                 vals.push(el);
             }
             variables['LINK']['properties'] = vals;
@@ -382,42 +396,58 @@ d3.swmmresult = function() {
             r['objects'] = variables;
             
             //reporting variables - 
-            nr = StartPos;
-            for (var i = 0; i < SWMM_Nperiods; i++) {
+            //SubcatchVars = 8;
+            //NodeVars = 6;
+            //LinkVars = 5;
+            
+            this.StartPosResult = this.StartPos;
+            for (var i = 1; i <= this.SWMM_Nperiods; i++) {
                 r[i] = {};
-                
-                var vals = [];
-                for (var j = 0; j < SWMM_Nsubcatch; j++) {
-                    var el = {};
-                    for (var k = 0; k < SubcatchVars; k++) {
-                        var no = nr + er.getswmmresultoffset(SUBCATCH, j, k, i);
-                        el[k] = er.readInt(c, no, RECORDSIZE);
+                var no = undefined;
+                var vals = {};
+                var el = [];
+                for (var j = 0; j < this.SWMM_Nsubcatch; j++) {
+                    el = [];
+                    for (var k = 0; k < this.SubcatchVars; k++) { //2 = 1 number of subcatchment variables + 1 polluants
+                        no = er.getswmmresultoffset(SUBCATCH, j, k, i);
+                        el.push(er.readFloat(c, no, RECORDSIZE));
                     }
-                    vals.push(el);
+                    vals[variables['SUBCATCH']['items'][j]] = el;
                 }
                 r[i]['SUBCATCH'] = vals;
 
-                vals = [];
-                for (var j = 0; j < SWMM_Nnodes; j++) {
-                    var el = {};
-                    for (var k = 0; k < NodeVars; k++) {
-                        var no = nr + er.getswmmresultoffset(SUBCATCH, j, k, i);
-                        el[k] = er.readInt(c, no, RECORDSIZE);
+                vals = {};
+                for (var j = 0; j <  this.SWMM_Nnodes; j++) {
+                    el = [];
+                    for (var k = 0; k < this.NodeVars; k++) {
+                        no = er.getswmmresultoffset(NODE, j, k, i);
+                        el.push(er.readFloat(c, no, RECORDSIZE));
                     }
-                    vals.push(el);
+                    vals[variables['NODE']['items'][j]] = el;
                 }
                 r[i]['NODE'] = vals;
 
-                vals = [];
-                for (var j = 0; j < SWMM_Nlinks; j++) {
-                    var el = {};
-                    for (var k = 0; k < LinkVars; k++) {
-                        var no = nr + er.getswmmresultoffset(SUBCATCH, j, k, i);
-                        el[k] = er.readInt(c, no, RECORDSIZE);
+                vals = {};
+                for (var j = 0; j <  this.SWMM_Nlinks; j++) {
+                    el = [];
+                    for (var k = 0; k < this.LinkVars; k++) {
+                        no = er.getswmmresultoffset(LINK, j, k, i);
+                        el.push(er.readFloat(c, no, RECORDSIZE));
                     }
-                    vals.push(el);
+                    vals[variables['LINK']['items'][j]] = el;
                 }
                 r[i]['LINK'] = vals;
+
+                vals = {};
+                el = [];
+                for (var k = 0; k < this.SysVars; k++) {
+                    no = er.getswmmresultoffset(SYS, j, k, i);
+                    el.push(er.readFloat(c, no, RECORDSIZE));
+                }
+                r[i]['SYS'] = el;
+
+                this.StartPosResult = no + (this.NodeVars+this.LinkVars+this.SysVars-1)*RECORDSIZE;
+                if (i===1) console.log(this.StartPos, this.StartPosResult);
             }
         }
         
@@ -425,19 +455,19 @@ d3.swmmresult = function() {
     };
 
     swmmresult.getswmmresultoffset = function(iType, iIndex, vIndex, period ) {
-        var offset;
-        offset = StartPos + (period-1)*BytesPerPeriod + 2*RECORDSIZE;
+        var offset1, offset2;
+        offset1 = this.StartPosResult + 2*RECORDSIZE;
         
         if ( iType === SUBCATCH ) 
-          offset = offset + RECORDSIZE*(iIndex*SubcatchVars + vIndex);
+          offset2 = (iIndex*this.SubcatchVars + vIndex);
         else if (iType === NODE) 
-          offset = offset +  RECORDSIZE*(SWMM_Nsubcatch*SubcatchVars + iIndex*NodeVars + vIndex);
+          offset2 = (this.SWMM_Nsubcatch*this.SubcatchVars + iIndex*this.NodeVars + vIndex);
         else if (iType === LINK)
-          offset = offset + RECORDSIZE*(SWMM_Nsubcatch*SubcatchVars + SWMM_Nnodes*NodeVars + iIndex*LinkVars + vIndex);
+          offset2 = (this.SWMM_Nsubcatch*this.SubcatchVars + this.SWMM_Nnodes*this.NodeVars + iIndex*this.LinkVars + vIndex);
         else if (iType === SYS) 
-            offset = offset + RECORDSIZE*(SWMM_Nsubcatch*SubcatchVars + SWMM_Nnodes*NodeVars + SWMM_Nlinks*LinkVars + vIndex);
+            offset2 = (this.SWMM_Nsubcatch*this.SubcatchVars + this.SWMM_Nnodes*this.NodeVars + this.SWMM_Nlinks*this.LinkVars + vIndex);
         
-        return offset;
+        return offset1 + RECORDSIZE * offset2;
     };
     
     swmmresult.readInt = function(content, offset, recordsize) {
