@@ -234,24 +234,21 @@ d3.swmmresult = function() {
             this.SysVars = er.readInt(c, offset + (this.SubcatchVars*RECORDSIZE) + (this.NodeVars*RECORDSIZE) + (this.LinkVars*RECORDSIZE), RECORDSIZE);
             
             offset = this.StartPos - 3*RECORDSIZE;
-            var days = er.readInt(c, offset, 2*RECORDSIZE) + 1;
+            var days = (er.readInt(c, offset, 2*RECORDSIZE)+1);
             this.SWMM_StartDate = new Date('12/31/1899');
             this.SWMM_StartDate = new Date(this.SWMM_StartDate.setDate(this.SWMM_StartDate.getDate() + days));
             this.SWMM_ReportStep = er.readInt(c, offset + 2*RECORDSIZE, RECORDSIZE);
+            
+            this.SubcatchVars = (8 + this.SWMM_Npolluts);
+            this.NodeVars = (6 + this.SWMM_Npolluts);
+            this.LinkVars = (5 + this.SWMM_Npolluts);
+            this.SysVars = 15;
             
             this.BytesPerPeriod = RECORDSIZE*(2 + 
                     this.SWMM_Nsubcatch*this.SubcatchVars +
                     this.SWMM_Nnodes*this.NodeVars +
                     this.SWMM_Nlinks*this.LinkVars +
-                    this.SysVars); // it suppose to calculate bytes per period but i have a difference of 152. So I am not using it
-            
-            if (this.NodeVars>6 && this.SWMM_Npolluts===0) {
-                this.NodeVars = 6;
-            }
-            
-            if (this.LinkVars>5 && this.SWMM_Npolluts===0) {
-                this.LinkVars = 5;
-            }
+                    this.SysVars); 
             
             var variables = {};
             var nr = this.offsetOID;
@@ -399,16 +396,18 @@ d3.swmmresult = function() {
             //SubcatchVars = 8;
             //NodeVars = 6;
             //LinkVars = 5;
-            
             this.StartPosResult = this.StartPos;
             for (var i = 1; i <= this.SWMM_Nperiods; i++) {
                 r[i] = {};
                 var no = undefined;
                 var vals = {};
                 var el = [];
+                
+                this.StartPosResult += 2*RECORDSIZE;
+                
                 for (var j = 0; j < this.SWMM_Nsubcatch; j++) {
                     el = [];
-                    for (var k = 0; k < this.SubcatchVars; k++) { //2 = 1 number of subcatchment variables + 1 polluants
+                    for (var k = 0; k < this.SubcatchVars ; k++) { //2 = 1 number of subcatchment variables + 1 polluants
                         no = er.getswmmresultoffset(SUBCATCH, j, k, i);
                         el.push(er.readFloat(c, no, RECORDSIZE));
                     }
@@ -446,8 +445,7 @@ d3.swmmresult = function() {
                 }
                 r[i]['SYS'] = el;
 
-                this.StartPosResult = no + (this.NodeVars+this.LinkVars+this.SysVars-1)*RECORDSIZE;
-                if (i===1) console.log(this.StartPos, this.StartPosResult);
+                this.StartPosResult = no + RECORDSIZE;
             }
         }
         
@@ -456,10 +454,10 @@ d3.swmmresult = function() {
 
     swmmresult.getswmmresultoffset = function(iType, iIndex, vIndex, period ) {
         var offset1, offset2;
-        offset1 = this.StartPosResult + 2*RECORDSIZE;
+        offset1 = this.StartPosResult; // + (period-1)*this.BytesPerPeriod + 2*RECORDSIZE;
         
         if ( iType === SUBCATCH ) 
-          offset2 = (iIndex*this.SubcatchVars + vIndex);
+          offset2 = (iIndex*(this.SubcatchVars) + vIndex);
         else if (iType === NODE) 
           offset2 = (this.SWMM_Nsubcatch*this.SubcatchVars + iIndex*this.NodeVars + vIndex);
         else if (iType === LINK)
