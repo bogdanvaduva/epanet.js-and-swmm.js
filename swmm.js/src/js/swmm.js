@@ -15,6 +15,17 @@ d3.inp = function() {
 		if (m && m.length && 3 === m.length)
 		    section[key] = {x: parseFloat(m[1]), y: parseFloat(m[2])};
 	    },
+	    Polygons: function(section, key, line) {
+		var m = line.match(/\s*([0-9\.]+)\s+([0-9\.]+)/);
+                if (!section[key]) 
+                    section[key] = [];
+                if (Object.keys(section[key]).length === 0)
+                    section[key] = [];
+		if (m && m.length && 3 === m.length) {
+                    var coord = {x: parseFloat(m[1]), y: parseFloat(m[2])};
+		    section[key].push(coord);
+                }
+	    },
 	    LABELS: function(section, key, line) {
 		var m = line.match(/\s+([[0-9\.]+)\s+"([^"]+)"/);
 		if (m && m.length && 3 === m.length)
@@ -26,6 +37,22 @@ d3.inp = function() {
 		    section[key] = {NODE1: m[1], NODE2: m[2], 
 			LENGTH: parseFloat(m[3]), MANNING: parseFloat(m[4]),
 			IH: parseFloat(m[5]), OH: parseFloat(m[6]), IF: m[7]};
+		}
+	    },
+	    SUBCATCHMENTS: function(section, key, line) {
+		var m = line.match(/\s*([^\s;]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([^;]).*/);
+		if (m && m.length && 9 === m.length) {
+		    section[key] = {RAINGAGE: m[1], OUTLET: parseFloat(m[2]), 
+			TOTAL: parseFloat(m[3]), IMPERV: parseFloat(m[4]),
+			WIDTH: parseFloat(m[5]), SLOPE: parseFloat(m[6]), LENGTH: parseFloat(m[7]), SNOW: m[8]};
+		}
+	    },
+	    SUBAREAS: function(section, key, line) {
+		var m = line.match(/\s*([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([0-9\.]+)\s+([^;])\s+([^;]).*/);
+		if (m && m.length && 8 === m.length) {
+		    section[key] = {NIMPERV: parseFloat(m[1]), NPERV: parseFloat(m[2]), 
+			SIMPERV: parseFloat(m[3]), SPERV: parseFloat(m[4]),
+			ZERO: parseFloat(m[5]), ROUTE: m[6], PCT: m[7]};
 		}
 	    },
 	    PUMPS: function(section, key, line) {
@@ -776,7 +803,26 @@ var swmmjs = function() {
 			    .attr('fill', color);
 		}
 	    }
-
+	    // Render polygons
+            if (model.Polygons) {
+                for (var polygon in model.Polygons) {
+                    var c = model.Polygons[polygon],			
+                            color = swmmjs.defaultColor;
+                    var points = '';
+                    Object.keys(c).forEach(function(key) {
+                        points += c[key].x + ' ' + c[key].y + ' ';
+                    });
+                    el.append('g').attr('id',polygon).append('polygon')
+                                .attr('points', points)
+                                .attr('title', polygon)
+                                .attr('onmouseover', 'swmmjs.svg.tooltip(evt.target)')
+                                .attr('onmouseout', 'swmmjs.svg.clearTooltips(evt.target)')
+                                .attr('class', 'polygon')
+                                .attr('fill', 'transparent')
+                                .attr("stroke-width", 7)
+                                .attr("stroke", color);
+                }
+            }
 	    // Render labels
 	    for (var label in model['LABELS']) {
 		var l = model['LABELS'][label],
@@ -963,7 +1009,7 @@ var swmmjs = function() {
 	swmmjs.model = d3.inp().parse(document.getElementById('inpFile').value)
 	if (swmmjs.results) {
 	    var reportTime = (swmmjs.model['OPTIONS'] ? new Date(swmmjs.model['OPTIONS']['REPORT_START_DATE']+swmmjs.model['OPTIONS']['REPORT_STEP']) : undefined);
-            var reportTimestep = (reportTime ? reportTime.getMinutes() : undefined);
+            var reportTimestep = (reportTime ? reportTime.getHours()*60 + reportTime.getMinutes() : undefined);
 	    for (var t in swmmjs.results) {
 		time.append('option')
                     .attr('value', t)
