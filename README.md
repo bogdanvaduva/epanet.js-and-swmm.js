@@ -42,7 +42,6 @@ SAMPLE FOR SWMM.js
 
 TODO
 ====
-to modify the generated epanet js.js to deal with null nodes.
 
 to change sample.html 
 
